@@ -29,6 +29,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "NBConfig.h"
 
 /* USER CODE END Includes */
 

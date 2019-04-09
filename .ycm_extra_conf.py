@@ -5,20 +5,24 @@ import subprocess
 import ycm_core
 
 DIR_OF_THIS_SCRIPT = os.path.abspath( os.path.dirname( __file__ ) )
-SOURCE_EXTENSIONS = [ '.cpp', '.cxx', '.cc', '.c', '.m', '.mm' ]
+SOURCE_EXTENSIONS = [ '.cpp', '.cxx', '.cc', '.c', '.m', '.mm' ,'hpp']
 
 flags = [
-'--std=c11',
+
 '-Wc11-extensions',
 '-x',
-'c',
+'c++',
+
 '-DUSE_HAL_DRIVER',
 '-DSTM32F103xB',
 '-IInc/',
+'-ICpp/',
+
 '-IDrivers/STM32F1xx_HAL_Driver/Inc/',
 '-IDrivers/STM32F1xx_HAL_Driver/Inc/Legacy',
 '-IDrivers/CMSIS/Device/ST/STM32F1xx/Include',
 '-IDrivers/CMSIS/Include',
+
 
 '-IMiddlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM3',
 '-IMiddlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/',

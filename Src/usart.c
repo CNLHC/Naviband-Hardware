@@ -21,6 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
+#include "cmsis_os.h"
 
 /* USER CODE END 0 */
 
@@ -206,6 +207,11 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+void HAL_UART_RxCpltCallback (UART_HandleTypeDef * huart){
+
+    
+
+}
 
 /* USER CODE END 1 */
 
