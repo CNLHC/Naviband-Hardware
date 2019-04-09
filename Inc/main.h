@@ -58,6 +58,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SysLED_Pin GPIO_PIN_13
+#define SysLED_GPIO_Port GPIOC
+#define VibratorL_Pin GPIO_PIN_3
+#define VibratorL_GPIO_Port GPIOA
+#define VibratorR_Pin GPIO_PIN_4
+#define VibratorR_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

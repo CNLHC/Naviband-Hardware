@@ -48,14 +48,14 @@
 /* USER CODE BEGIN Variables */
 
 /* USER CODE END Variables */
-osThreadId defaultTaskHandle;
+osThreadId BlinkSysLEDHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
    
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void const * argument);
+void osthBlinkSysLED(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -86,9 +86,9 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+  /* definition and creation of BlinkSysLED */
+  osThreadDef(BlinkSysLED, osthBlinkSysLED, osPriorityNormal, 0, 128);
+  BlinkSysLEDHandle = osThreadCreate(osThread(BlinkSysLED), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -96,23 +96,26 @@ void MX_FREERTOS_Init(void) {
 
 }
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_osthBlinkSysLED */
 /**
-  * @brief  Function implementing the defaultTask thread.
+  * @brief  Function implementing the BlinkSysLED thread.
   * @param  argument: Not used 
   * @retval None
   */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+/* USER CODE END Header_osthBlinkSysLED */
+void osthBlinkSysLED(void const * argument)
 {
 
-  /* USER CODE BEGIN StartDefaultTask */
+  /* USER CODE BEGIN osthBlinkSysLED */
   /* Infinite loop */
   for(;;)
   {
-    osDelay(1);
+      HAL_GPIO_WritePin(SysLED_GPIO_Port,SysLED_Pin,GPIO_PIN_SET);
+      osDelay(200);
+      HAL_GPIO_WritePin(SysLED_GPIO_Port,SysLED_Pin,GPIO_PIN_RESET);
+      osDelay(200);
   }
-  /* USER CODE END StartDefaultTask */
+  /* USER CODE END osthBlinkSysLED */
 }
 
 /* Private application code --------------------------------------------------*/
