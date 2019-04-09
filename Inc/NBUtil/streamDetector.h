@@ -18,6 +18,10 @@ void sPDConstructor(streamPatternDetector *self,const char* pattern)
     int len =  strlen(pattern);
     self->mPatternBuffer = (char *)malloc(sizeof(uint8_t)*len);
     self->mPatternLength = len;
+    self->mHitTimes=0;
+    self->mInnerFSM=0;
+
+    
     for (i=0;i<len;i++)
         self->mPatternBuffer[i] = pattern[i];
 }

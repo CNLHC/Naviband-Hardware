@@ -509,11 +509,11 @@ ARM Macro Assembler    Page 8
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=naviband\startup_stm32f103xb.d -onaviband\startup_stm32f103xb.o -I
-..\\Inc -I.\RTE\_Naviband -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\5.4.0\CMSIS\Core\Incl
-ude -IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\2.0.0\Device\Include --predefine="
-__EVAL SETA 1" --predefine="__UVISION_VERSION SETA 526" --predefine="_RTE_ SETA
- 1" --predefine="STM32F10X_MD SETA 1" --list=startup_stm32f103xb.lst startup_st
-m32f103xb.s
+..\\Inc -IC:\Users\cn\Desktop\Project\Naviband-Hardware\MDK-ARM\RTE -IC:\Keil_v
+5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32F1xx_D
+FP\2.0.0\Device\Include --predefine="__EVAL SETA 1" --predefine="__UVISION_VERS
+ION SETA 516" --predefine="_RTE_ SETA 1" --predefine="STM32F10X_MD SETA 1" --li
+st=startup_stm32f103xb.lst startup_stm32f103xb.s
 
 
 

@@ -22,6 +22,8 @@
 
 /* USER CODE BEGIN 0 */
 #include "cmsis_os.h"
+#include "NBConfig.h"
+
 
 /* USER CODE END 0 */
 
@@ -207,10 +209,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+extern osMessageQId qBTHSerialDMASyncHandle;
+
 void HAL_UART_RxCpltCallback (UART_HandleTypeDef * huart){
-
-    
-
+    osMessagePut(qBTHSerialDMASyncHandle,1,0);
 }
 
 /* USER CODE END 1 */

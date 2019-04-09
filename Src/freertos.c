@@ -28,6 +28,8 @@
 /* USER CODE BEGIN Includes */     
 #include "NBConfig.h"
 #include "NBTask/NBTaskBTHDaemon.h"
+#include "usart.h"
+#include "stm32f1xx_hal_uart.h"
 
 /* USER CODE END Includes */
 
@@ -56,6 +58,9 @@ osStaticThreadDef_t BlinkSysLEDControlBlock;
 osThreadId BTHDaemonHandle;
 uint32_t BTHDaemonBuffer[ 512 ];
 osStaticThreadDef_t BTHDaemonControlBlock;
+osThreadId SerialDMAReaderHandle;
+uint32_t SerialDMAReaderBuffer[ 128 ];
+osStaticThreadDef_t SerialDMAReaderControlBlock;
 osMessageQId qVibratorLCMDHandle;
 uint8_t qVibratorLCMDBuffer[ 16 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t qVibratorLCMDControlBlock;
@@ -65,6 +70,12 @@ osStaticMessageQDef_t qVibratorRCMDControlBlock;
 osMessageQId qBTHSerialReadHandle;
 uint8_t qBTHSerialReadBuffer[ 32 * sizeof( uint8_t ) ];
 osStaticMessageQDef_t qBTHSerialReadControlBlock;
+osMessageQId qAuxSerialReadHandle;
+uint8_t qAuxSerialReadBuffer[ 32 * sizeof( uint8_t ) ];
+osStaticMessageQDef_t qAuxSerialReadontrolBlock;
+osMessageQId qBTHSerialDMASyncHandle;
+uint8_t qBTHSerialDMASyncBuffer[ 16 * sizeof( uint8_t ) ];
+osStaticMessageQDef_t qBTHSerialDMASyncControlBlock;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
@@ -73,6 +84,7 @@ osStaticMessageQDef_t qBTHSerialReadControlBlock;
 
 void osthBlinkSysLED(void const * argument);
 void osthBTHDaemon(void const * argument);
+void osthSerialDMAReader(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -143,6 +155,14 @@ void MX_FREERTOS_Init(void) {
   osMessageQStaticDef(qBTHSerialRead, 32, uint8_t, qBTHSerialReadBuffer, &qBTHSerialReadControlBlock);
   qBTHSerialReadHandle = osMessageCreate(osMessageQ(qBTHSerialRead), NULL);
 
+  /* definition and creation of qAuxSerialRead */
+  osMessageQStaticDef(qAuxSerialRead, 32, uint8_t, qAuxSerialReadBuffer, &qAuxSerialReadontrolBlock);
+  qAuxSerialReadHandle = osMessageCreate(osMessageQ(qAuxSerialRead), NULL);
+
+  /* definition and creation of qBTHSerialDMASync */
+  osMessageQStaticDef(qBTHSerialDMASync, 16, uint8_t, qBTHSerialDMASyncBuffer, &qBTHSerialDMASyncControlBlock);
+  qBTHSerialDMASyncHandle = osMessageCreate(osMessageQ(qBTHSerialDMASync), NULL);
+
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
@@ -155,6 +175,10 @@ void MX_FREERTOS_Init(void) {
   /* definition and creation of BTHDaemon */
   osThreadStaticDef(BTHDaemon, osthBTHDaemon, osPriorityBelowNormal, 0, 512, BTHDaemonBuffer, &BTHDaemonControlBlock);
   BTHDaemonHandle = osThreadCreate(osThread(BTHDaemon), NULL);
+
+  /* definition and creation of SerialDMAReader */
+  osThreadStaticDef(SerialDMAReader, osthSerialDMAReader, osPriorityHigh, 0, 128, SerialDMAReaderBuffer, &SerialDMAReaderControlBlock);
+  SerialDMAReaderHandle = osThreadCreate(osThread(SerialDMAReader), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -200,6 +224,27 @@ void osthBTHDaemon(void const * argument)
   //to integra with CUBEMX, implement infinite loop in NBTask
   NBBTHDaemonEntry(argument);
   /* USER CODE END osthBTHDaemon */
+}
+
+/* USER CODE BEGIN Header_osthSerialDMAReader */
+/**
+* @brief Function implementing the SerialDMAReader thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_osthSerialDMAReader */
+void osthSerialDMAReader(void const * argument)
+{
+  /* USER CODE BEGIN osthSerialDMAReader */
+    uint8_t bytes;
+  /* Infinite loop */
+
+  for(;;) {
+      HAL_UART_Receive_DMA(&huart1,&bytes,1);
+      osMessageGet(qBTHSerialDMASyncHandle,osWaitForever);
+      osMessagePut(qBTHSerialReadHandle,bytes,0);
+  }
+  /* USER CODE END osthSerialDMAReader */
 }
 
 /* Private application code --------------------------------------------------*/
