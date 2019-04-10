@@ -28,8 +28,10 @@
 /* USER CODE BEGIN Includes */     
 #include "NBConfig.h"
 #include "NBTask/NBTaskBTHDaemon.h"
+#include "NBTask/NBVibratorActuator.h"
 #include "usart.h"
 #include "stm32f1xx_hal_uart.h"
+#include "gpio.h"
 
 /* USER CODE END Includes */
 
@@ -61,6 +63,12 @@ osStaticThreadDef_t BTHDaemonControlBlock;
 osThreadId SerialDMAReaderHandle;
 uint32_t SerialDMAReaderBuffer[ 128 ];
 osStaticThreadDef_t SerialDMAReaderControlBlock;
+osThreadId VibratorLExecHandle;
+uint32_t osthVibratorLExecBuffer[ 128 ];
+osStaticThreadDef_t osthVibratorLExecControlBlock;
+osThreadId VibratorRExecHandle;
+uint32_t osthVibratorRExecBuffer[ 128 ];
+osStaticThreadDef_t osthVibratorRExecControlBlock;
 osMessageQId qVibratorLCMDHandle;
 uint8_t qVibratorLCMDBuffer[ 16 * sizeof( uint32_t ) ];
 osStaticMessageQDef_t qVibratorLCMDControlBlock;
@@ -85,6 +93,8 @@ osStaticMessageQDef_t qBTHSerialDMASyncControlBlock;
 void osthBlinkSysLED(void const * argument);
 void osthBTHDaemon(void const * argument);
 void osthSerialDMAReader(void const * argument);
+void osthVibratorLExec(void const * argument);
+void osthVibratorRExec(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -180,6 +190,14 @@ void MX_FREERTOS_Init(void) {
   osThreadStaticDef(SerialDMAReader, osthSerialDMAReader, osPriorityHigh, 0, 128, SerialDMAReaderBuffer, &SerialDMAReaderControlBlock);
   SerialDMAReaderHandle = osThreadCreate(osThread(SerialDMAReader), NULL);
 
+  /* definition and creation of VibratorLExec */
+  osThreadStaticDef(VibratorLExec, osthVibratorLExec, osPriorityIdle, 0, 128, osthVibratorLExecBuffer, &osthVibratorLExecControlBlock);
+  VibratorLExecHandle = osThreadCreate(osThread(VibratorLExec), NULL);
+
+  /* definition and creation of VibratorRExec */
+  osThreadStaticDef(VibratorRExec, osthVibratorRExec, osPriorityIdle, 0, 128, osthVibratorRExecBuffer, &osthVibratorRExecControlBlock);
+  VibratorRExecHandle = osThreadCreate(osThread(VibratorRExec), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
@@ -245,6 +263,36 @@ void osthSerialDMAReader(void const * argument)
       osMessagePut(qBTHSerialReadHandle,bytes,0);
   }
   /* USER CODE END osthSerialDMAReader */
+}
+
+/* USER CODE BEGIN Header_osthVibratorLExec */
+/**
+* @brief Function implementing the VibratorLExec thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_osthVibratorLExec */
+void osthVibratorLExec(void const * argument)
+{
+  /* USER CODE BEGIN osthVibratorLExec */
+  /* Infinite loop */
+  NBVibratorActuator(NBPIN_VIBRATORL_PORT,NBPIN_VIBRATORL_PIN,qVibratorLCMDHandle);
+  /* USER CODE END osthVibratorLExec */
+}
+
+/* USER CODE BEGIN Header_osthVibratorRExec */
+/**
+* @brief Function implementing the VibratorRExec thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_osthVibratorRExec */
+void osthVibratorRExec(void const * argument)
+{
+  /* USER CODE BEGIN osthVibratorRExec */
+  /* Infinite loop */
+  NBVibratorActuator(NBPIN_VIBRATORR_PORT,NBPIN_VIBRATORR_PIN,qVibratorRCMDHandle);
+  /* USER CODE END osthVibratorRExec */
 }
 
 /* Private application code --------------------------------------------------*/

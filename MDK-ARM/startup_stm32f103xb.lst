@@ -234,7 +234,7 @@ ARM Macro Assembler    Page 4
                                                             m through EXTI Line
                                                             
   138 000000E8 00000000        DCD              USBWakeUp_IRQHandler ; USB Wake
-                                                            up from suspend
+                                                            up from suspend 
   139 000000EC         __Vectors_End
   140 000000EC         
   141 000000EC 000000EC 

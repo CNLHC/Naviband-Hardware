@@ -1,9 +1,13 @@
 #include "NBUtil/streamDetector.h"
 #include "NBTask/NBTaskBTHDaemon.h"
 #include <stdint.h>
+#include <string.h>
+#include "NBBTHParser.h"
 #include "cmsis_os.h"
 
 extern osMessageQId qBTHSerialReadHandle;
+extern osMessageQId qVibratorLCMDHandle;
+extern osMessageQId qVibratorRCMDHandle;
 
 
 void NBBTHDaemonEntry(void const * argument){
@@ -32,15 +36,21 @@ void NBBTHDaemonEntry(void const * argument){
                 if(sPDGetHitTimes(&tFrameEndDetector)==0&& tBufferIndex<=100)
                    tCommandBuffer[tBufferIndex++]=tCHBuffer;
                 else{
+                    tCommandBuffer[tBufferIndex++]=tCHBuffer;
                     tCommandBuffer[tBufferIndex++]='\0';
-                    tInnerFSM=2;
+                    char * e =  strstr((const char *)tCommandBuffer,(const char *)tFrameEndDetector.mPatternBuffer);
+                    *e='\0'; //to remove frameend mark
+                    enum NBBTHCommand command = NBParseFrameContent((const char *)tCommandBuffer);
+                    if(command==BTHCVibrateR)
+                        osMessagePut(qVibratorRCMDHandle,1,0);
+                    else if(command==BTHCVibrateL)
+                        osMessagePut(qVibratorLCMDHandle,1,0);
+                    sPDreset(&tFrameEndDetector);
+                    sPDreset(&tFrameHeadDetector);
+                    tBufferIndex=0;
+                    memset(tCommandBuffer,0,100);
+                    tInnerFSM=0;
                 }
-                break;
-            case 2:
-                sPDreset(&tFrameEndDetector);
-                sPDreset(&tFrameHeadDetector);
-                tBufferIndex=0;
-                tInnerFSM=0;
                 break;
         }
     }
